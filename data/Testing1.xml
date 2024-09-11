@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Test1" tests="1" failures="0" errors="0" skipped="0" assertions="15" time="24.876761" timestamp="2024-06-03T06:27:35.473845+00:00">
+	<testcase name="Test1" classname="sw_integration_tests" assertions="15" time="24.876761" timestamp="2024-06-03T06:27:35.473845+00:00" file="test1.py" line="1332">
+	</testcase>
+</testsuite>

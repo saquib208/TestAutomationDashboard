@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allure-Style Test Automation Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container my-4">
+        <h1 class="text-center mb-4">Integration Automation Dashboard</h1>
+
+        <!-- Summary Section with Charts -->
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Summary</h3>
+                <ul class="list-group">
+                    <li class="list-group-item">Total Tests: {{ report_data.total_tests }}</li>
+                    <li class="list-group-item">Failures: {{ report_data.failures }}</li>
+                    <li class="list-group-item">Errors: {{ report_data.errors }}</li>
+                    <li class="list-group-item">Skipped: {{ report_data.skipped }}</li>
+<!--                    <li class="list-group-item">Assertions: {{ report_data.assertions }}</li>-->
+                    <li class="list-group-item">Total Time: {{ report_data.total_time }} minutes</li>
+                </ul>
+            </div>
+            <div class="col-md-8">
+                <h3>Test Execution Report</h3>
+                <canvas id="testResultsChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <!-- Filter and Search -->
+        <div class="row my-4">
+            <div class="col-md-6">
+                <select id="statusFilter" class="form-select">
+                    <option value="all">All</option>
+                    <option value="pass">Passed</option>
+                    <option value="fail">Failed</option>
+                    <option value="skipped">Skipped</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="text" id="searchBox" class="form-control" placeholder="Search by Test Case ID or Name">
+            </div>
+        </div>
+
+        <!-- Test Cases -->
+        <h3>Test Cases</h3>
+        <div id="test-cases" class="accordion">
+            {% for case in report_data.test_cases %}
+            <div class="accordion-item" data-status="{{ case.status }}" data-name="{{ case.name }}" data-id="{{ case.test_case_id }}">
+                <h2 class="accordion-header" id="heading-{{ loop.index }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+                        <span class="badge {% if case.status == 'pass' %}bg-success{% elif case.status == 'fail' %}bg-danger{% else %}bg-warning{% endif %} me-2">{{ case.status|capitalize }}</span>
+                        {{ case.test_case_id }}: {{ case['name'].split(".")[-1] }}
+                    </button>
+                </h2>
+                <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#test-cases">
+                    <div class="accordion-body">
+                        <p><strong>Service Name:</strong> {{ case['name'].split(".")[0][4:] }}</p>
+                        <p><strong>Test Case Name:</strong> {{ case['name'].split(".")[-1] }}</p>
+<!--                        <p><strong>Test Case ID:</strong> {{ case['name'].split(".")[-1] }}</p>-->
+<!--                        <p><strong>Test Description:</strong> {{ case.test_description }}</p>-->
+<!--                        <p><strong>Tested Diagrams:</strong> {{ case.tested_diagrams }}</p>-->
+<!--                        <p><strong>Tested Requirements:</strong> {{ case.tested_requirements }}</p>-->
+                        <p><strong>Class Name:</strong> {{ case.classname }}</p>
+                        <p><strong>Time:</strong> {{ case.time }} seconds</p>
+
+                        <!-- Display failure details if the test has failed -->
+                        {% if case.status == 'fail' %}
+                        <p><strong>Failure Message:</strong> {{ case.failure.failure_message }}</p>
+                        <p><strong>Failure Type:</strong> {{ case.failure.failure_type }}</p>
+                        <p><strong>Failure Details:</strong> {{ case.failure.failure_details }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Pass Python variables to JavaScript using JSON
+        const reportData = {{ report_data | tojson }};
+    </script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
